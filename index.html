@@ -170,66 +170,79 @@
             }
         }
 
-        // --- MAXIMUM CUTE VIDEO GAME SPARKLE AUDIO ENGINE ---
+        // --- RETRO CLICKY & SPARKLY AUDIO ENGINE ---
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        // Creates an ultra-magical, bright, twinkling star-glitter effect
-        function playUltraCuteSparkle(baseDelay, startingPitch) {
-            // Generate a rapid cluster of 5 tiny, ultra-high pitched magical chime bursts
+        // Mechanical 8-bit plastic button click simulator using a tight noise pop
+        function playClickTransient() {
+            const bufferSize = audioCtx.sampleRate * 0.015; // Ultra short 15ms window
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            // Generate raw noise energy
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const noiseNode = audioCtx.createBufferSource();
+            noiseNode.buffer = buffer;
+
+            // Tight high-pass filter to extract a crisp plastic "tack" texture
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.setValueAtTime(6000, audioCtx.currentTime);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+            // Envelope decays instantly for a snappy mechanical switch pop
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.012);
+
+            noiseNode.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            noiseNode.start();
+        }
+
+        // High-pitched video game sparkle generator
+        function playSparkleLayer(baseDelay, startingPitch) {
             for (let i = 0; i < 5; i++) {
-                const delay = baseDelay + (i * 0.025); // Fast, sweeping cadence
-                // Multiplies upwards for a cute, shiny harmonic stair ladder (e.g., major pentatonic styling)
+                const delay = baseDelay + (i * 0.02); // Tighter delay for snappier timing
                 const pitch = startingPitch * (1 + (i * 0.25)); 
 
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 
-                // Sine wave ensures zero grit—just pure, sweet glass-like magical tones
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(pitch, audioCtx.currentTime + delay);
+                osc.frequency.exponentialRampToValueAtTime(pitch * 1.5, audioCtx.currentTime + delay + 0.03);
                 
-                // Extremely sharp upward pitch bend makes the note sound like an active "twinkle"
-                osc.frequency.exponentialRampToValueAtTime(pitch * 1.4, audioCtx.currentTime + delay + 0.04);
-                
-                // Tiny volume envelopes to prevent piercing while staying beautifully bright
                 gain.gain.setValueAtTime(0.06, audioCtx.currentTime + delay);
-                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + delay + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + delay + 0.04);
                 
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
                 
                 osc.start(audioCtx.currentTime + delay);
-                osc.stop(audioCtx.currentTime + delay + 0.05);
+                osc.stop(audioCtx.currentTime + delay + 0.04);
             }
-        }
-
-        // Button 1: Soft, magical rising fairy-dust sparkle cluster
-        function playButton1CuteSparkle() {
-            initAudio();
-            // Starts high (1200Hz) and cascades immediately into a bright ring
-            playUltraCuteSparkle(0.0, 1200);
-        }
-
-        // Button 2: Super bright, magical dual-layered celestial level-up sparkle
-        function playButton2CuteSparkle() {
-            initAudio();
-            // Two rapid overlapping sparkle bursts at crystal-clear frequencies (1400Hz and 1800Hz)
-            playUltraCuteSparkle(0.0, 1400);
-            playUltraCuteSparkle(0.04, 1800);
         }
 
         // --- CLICK LISTENERS ---
         document.getElementById('btn1').addEventListener('click', function() {
-            playButton1CuteSparkle();
+            playClickTransient();          // Crisp mechanical click sound
+            playSparkleLayer(0.01, 1300);  // High game sparkle layer (slightly offset)
             explodeConfetti(this, 95); 
         });
 
         document.getElementById('btn2').addEventListener('click', function() {
-            playButton2Sparkle(); // Uses the newly upgraded dual celestial level-up sound
+            playClickTransient();          // Crisp mechanical click sound
+            playSparkleLayer(0.01, 1500);  // Higher celestial sparkle layer
+            playSparkleLayer(0.04, 1900);  // Cascading second layer
             explodeConfetti(this, 95); 
         });
     </script>
