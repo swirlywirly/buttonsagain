@@ -183,37 +183,45 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             
+            // Soft rounded bubble synth pop sound
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.08);
+            osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.15);
             
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.08);
-        }
-
-        function playCuteChimeSound() {
-            initAudio();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(1500, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(1300, audioCtx.currentTime + 0.15);
-            
-            gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
             
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             
             osc.start();
             osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        function playCuteChimeSound() {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+            
+            // Warmer wooden marimba style drop chime sound
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(520, audioCtx.currentTime + 0.12);
+            
+            // Lowpass cuts out harsh frequencies
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
+            
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.12);
         }
 
         // --- CLICK EVENT LISTENERS ---
