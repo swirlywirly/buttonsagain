@@ -84,7 +84,6 @@
 <body>
 
     <div class="container">
-        <!-- Updated first button text with sleeping/procrastinating unicode icons -->
         <button id="btn1">Procrastinating ᶻ 𝗓 𐰁</button>
         <button id="btn2">Locked In .ᐟ.ᐟ</button>
     </div>
@@ -171,59 +170,80 @@
             }
         }
 
-        // --- CUTE AUDIO ENGINE ---
+        // --- NEW ULTRA-CUTE AUDIO ENGINE ---
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        function playCutePopSound() {
+        // Super cute squeaky double-pop for Procrastinating
+        function playCuteSqueakPop() {
             initAudio();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
             
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.08);
-            
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.08);
+            // Sub-function to make a single tiny squeak pop
+            function squeeze(delay, startFreq, endFreq) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(startX, audioCtx.currentTime + delay);
+                // Sweeps upward violently for an ultra-bouncy, cartoon squeeze effect
+                osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + delay + 0.05);
+                
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime + delay);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + 0.05);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start(audioCtx.currentTime + delay);
+                osc.stop(audioCtx.currentTime + delay + 0.05);
+            }
+
+            // Quick dual-pop sound pattern
+            squeeze(0, 900, 1600);
+            squeeze(0.04, 1100, 1900);
         }
 
-        function playCuteChimeSound() {
+        // Magical glittering retro chime chord for Locked In
+        function playCuteMagicChime() {
             initAudio();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(1500, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(1300, audioCtx.currentTime + 0.15);
-            
-            gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.15);
+
+            // Sub-function to play individual sparkling musical notes
+            function singleSparkle(delay, pitch) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                // Sine shape produces clean, sweet whistle-like tones
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(pitch, audioCtx.currentTime + delay);
+                
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime + delay);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + 0.12);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start(audioCtx.currentTime + delay);
+                osc.stop(audioCtx.currentTime + delay + 0.12);
+            }
+
+            // Plays a rapid arpeggio ladder (C-major triad arrangement) for a level-up glitter sound
+            singleSparkle(0, 1046.50);    // Note C6 (High)
+            singleSparkle(0.03, 1318.51); // Note E6 (Higher)
+            singleSparkle(0.06, 1567.98); // Note G6 (Highest)
+            singleSparkle(0.09, 2093.00); // Note C7 (Ultra Sparkle)
         }
 
         // --- CLICK LISTENERS ---
         document.getElementById('btn1').addEventListener('click', function() {
-            playCutePopSound();
+            playCuteSqueakPop();
             explodeConfetti(this, 95); 
         });
 
         document.getElementById('btn2').addEventListener('click', function() {
-            playCuteChimeSound();
+            playCuteMagicChime();
             explodeConfetti(this, 95); 
         });
     </script>
