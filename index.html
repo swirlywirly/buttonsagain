@@ -216,17 +216,16 @@
             osc.stop(audioCtx.currentTime + 0.15);
         }
 
-        // --- CLICK LISTENERS ---
+        // --- CLICK EVENT LISTENERS ---
         document.getElementById('btn1').addEventListener('click', function() {
             playCutePopSound();
-            explodeConfetti(this, 95); 
+            explodeConfetti(this, 50);
         });
 
         document.getElementById('btn2').addEventListener('click', function() {
             playCuteChimeSound();
-            explodeConfetti(this, 95); 
+            explodeConfetti(this, 80);
         });
     </script>
-
 </body>
 </html>
