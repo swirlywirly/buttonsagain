@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confetti Buttons</title>
+    <title>Green Confetti Buttons</title>
     <style>
         body {
             display: flex;
@@ -36,19 +36,19 @@
         }
 
         #btn1 {
-            background-color: #ff4757;
-        }
-
-        #btn1:hover {
-            background-color: #ff6b81;
-        }
-
-        #btn2 {
             background-color: #2ed573;
         }
 
-        #btn2:hover {
+        #btn1:hover {
             background-color: #7bed9f;
+        }
+
+        #btn2 {
+            background-color: #10ac84;
+        }
+
+        #btn2:hover {
+            background-color: #1dd1a1;
         }
     </style>
 </head>
@@ -56,37 +56,76 @@
 
     <div class="container">
         <!-- Button 1 -->
-        <button id="btn1">Party Popper!</button>
+        <button id="btn1">Pop sound!</button>
         <!-- Button 2 -->
-        <button id="btn2">Star Burst!</button>
+        <button id="btn2">Synth sound!</button>
     </div>
 
     <!-- Include Canvas Confetti Library -->
     <script src="https://jsdelivr.net"></script>
     
     <script>
-        // First button event: Classic cannon blast
+        // Web Audio API helper to generate noise without external audio files
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playPopSound() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        function playSynthSound() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        // Green color palette
+        const greenShades = ['#2ed573', '#7bed9f', '#10ac84', '#1dd1a1', '#a4b0be'];
+
+        // Button 1: Cannon blast + Pop sound
         document.getElementById('btn1').addEventListener('click', () => {
+            playPopSound();
             confetti({
                 particleCount: 100,
                 spread: 70,
-                origin: { y: 0.6 }
+                origin: { y: 0.6 },
+                colors: greenShades
             });
         });
 
-        // Second button event: Star-shaped multi-directional burst
+        // Button 2: Side bursts + Synth sound
         document.getElementById('btn2').addEventListener('click', () => {
+            playSynthSound();
             confetti({
                 particleCount: 50,
                 angle: 60,
                 spread: 55,
-                origin: { x: 0 }
+                origin: { x: 0 },
+                colors: greenShades
             });
             confetti({
                 particleCount: 50,
                 angle: 120,
                 spread: 55,
-                origin: { x: 1 }
+                origin: { x: 1 },
+                colors: greenShades
             });
         });
     </script>
