@@ -13,11 +13,13 @@
             margin: 0;
             background-color: #f0f2f5;
             font-family: Arial, sans-serif;
+            overflow: hidden;
         }
 
         .container {
             display: flex;
             gap: 20px;
+            z-index: 10; /* Ensures buttons stay clickable above confetti */
         }
 
         button {
@@ -28,54 +30,109 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.1s, filter 0.2s;
+            transition: transform 0.1s;
         }
 
         button:active {
             transform: scale(0.95);
         }
 
-        #btn1 {
-            background-color: #2ed573;
-        }
+        #btn1 { background-color: #2ed573; }
+        #btn1:hover { background-color: #7bed9f; }
+        #btn2 { background-color: #10ac84; }
+        #btn2:hover { background-color: #1dd1a1; }
 
-        #btn1:hover {
-            background-color: #7bed9f;
-        }
-
-        #btn2 {
-            background-color: #10ac84;
-        }
-
-        #btn2:hover {
-            background-color: #1dd1a1;
+        /* Fallback canvas for Chrome rendering issues */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 5;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- Button 1 -->
-        <button id="btn1">Pop sound!</button>
-        <!-- Button 2 -->
-        <button id="btn2">Synth sound!</button>
+        <button id="btn1">Pop Blast!</button>
+        <button id="btn2">Synth Burst!</button>
     </div>
 
-    <!-- Include Canvas Confetti Library -->
-    <script src="https://jsdelivr.net"></script>
-    
-    <script>
-        // Initialize audio context safely
-        let audioCtx = null;
+    <!-- Fallback canvas explicitly added for Chrome -->
+    <canvas id="confetti-canvas"></canvas>
 
+    <script>
+        // --- BUILT-IN MINI CONFETTI ENGINE (No external CDN required) ---
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const greenShades = ['#2ed573', '#7bed9f', '#10ac84', '#1dd1a1', '#a4b0be'];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, angle, spread) {
+                this.x = x;
+                this.y = y;
+                const speed = Math.random() * 15 + 5;
+                const radAngle = (angle + (Math.random() * spread - spread / 2)) * (Math.PI / 180);
+                this.vx = Math.cos(radAngle) * speed;
+                this.vy = -Math.sin(radAngle) * speed;
+                this.color = greenShades[Math.floor(Math.random() * greenShades.length)];
+                this.size = Math.random() * 6 + 4;
+                this.gravity = 0.4;
+                this.alpha = 1;
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 10 - 5;
+            }
+            update() {
+                this.x += this.vx;
+                this.vy += this.gravity;
+                this.y += this.vy;
+                this.alpha -= 0.015;
+                this.rotation += this.rotationSpeed;
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation * Math.PI / 180);
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.alpha;
+                ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        function spawnConfetti(count, x, y, angle, spread) {
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(x, y, angle, spread));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles = particles.filter(p => p.alpha > 0);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- AUDIO ENGINE ---
+        let audioCtx = null;
         function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            // Resume if suspended (browser security policy)
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
         function playPopSound() {
@@ -108,37 +165,19 @@
             osc.stop(audioCtx.currentTime + 0.15);
         }
 
-        // Green color palette
-        const greenShades = ['#2ed573', '#7bed9f', '#10ac84', '#1dd1a1', '#a4b0be'];
-
-        // Button 1: Cannon blast + Pop sound
+        // --- BUTTON EVENTS ---
         document.getElementById('btn1').addEventListener('click', () => {
             playPopSound();
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: greenShades
-            });
+            // Center bottom blast straight up (90 degrees)
+            spawnConfetti(100, window.innerWidth / 2, window.innerHeight * 0.7, 90, 70);
         });
 
-        // Button 2: Side bursts + Synth sound
         document.getElementById('btn2').addEventListener('click', () => {
             playSynthSound();
-            confetti({
-                particleCount: 50,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: greenShades
-            });
-            confetti({
-                particleCount: 50,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: greenShades
-            });
+            // Left corner shooting right-up (45 degrees)
+            spawnConfetti(50, 0, window.innerHeight * 0.8, 45, 40);
+            // Right corner shooting left-up (135 degrees)
+            spawnConfetti(50, window.innerWidth, window.innerHeight * 0.8, 135, 40);
         });
     </script>
 
