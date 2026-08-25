@@ -51,6 +51,9 @@
             z-index: 50;
             will-change: transform, opacity;
             animation: explode linear forwards;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         @keyframes explode {
@@ -85,6 +88,14 @@
             '#0f6b2d'  // Mid Dark Green
         ];
 
+        // Custom shape paths drawn via clip-path
+        const shapes = [
+            { type: 'ribbon', clip: 'none' }, // Standard rectangular ribbon
+            { type: 'star', clip: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)' },
+            { type: 'heart', clip: 'path("M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z")' },
+            { type: 'flower', clip: 'polygon(50% 0%, 65% 15%, 85% 15%, 85% 35%, 100% 50%, 85% 65%, 85% 85%, 65% 85%, 50% 100%, 35% 85%, 15% 85%, 15% 65%, 0% 50%, 15% 35%, 15% 15%, 35% 15%)' }
+        ];
+
         function explodeConfetti(buttonElement, count) {
             const rect = buttonElement.getBoundingClientRect();
             
@@ -95,12 +106,25 @@
                 const piece = document.createElement('div');
                 piece.className = 'confetti-piece';
 
-                const width = Math.random() * 12 + 16;
-                const height = Math.random() * 20 + 26;
+                // Base sizing metrics
+                const width = Math.random() * 12 + 18;
+                const height = Math.random() * 12 + 18;
                 piece.style.width = `${width}px`;
                 piece.style.height = `${height}px`;
                 
                 piece.style.backgroundColor = greenColors[Math.floor(Math.random() * greenColors.length)];
+
+                // Choose a random shape profile from our collection
+                const shapeProfile = shapes[Math.floor(Math.random() * shapes.length)];
+                
+                if (shapeProfile.type === 'heart') {
+                    // Hearts use SVG pathways, so we inject a clean layout matrix inside the box
+                    piece.style.backgroundColor = 'transparent';
+                    piece.innerHTML = `<svg viewBox="0 0 24 24" width="100%" height="100%"><path d="${shapeProfile.clip}" fill="${greenColors[Math.floor(Math.random() * greenColors.length)]}"/></svg>`;
+                } else if (shapeProfile.clip !== 'none') {
+                    // Stars and flowers use standard CSS polygon masks
+                    piece.style.clipPath = shapeProfile.clip;
+                }
 
                 piece.style.left = `${centerX - width / 2}px`;
                 piece.style.top = `${centerY - height / 2}px`;
@@ -134,14 +158,12 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        // High pitched "Plop / Bubble" sound for Procrastinating
         function playCutePopSound() {
             initAudio();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             
             osc.type = 'sine';
-            // Start quite high pitched and slide up quickly for a cute bubble pop feel
             osc.frequency.setValueAtTime(800, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.08);
             
@@ -155,14 +177,12 @@
             osc.stop(audioCtx.currentTime + 0.08);
         }
 
-        // Sparkly video game "Chime / Ting" sound for Locked In
         function playCuteChimeSound() {
             initAudio();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             
             osc.type = 'triangle';
-            // Crystal clear ultra-high frequencies that drop slightly like a tiny bell ringing
             osc.frequency.setValueAtTime(1500, audioCtx.currentTime);
             osc.frequency.linearRampToValueAtTime(1300, audioCtx.currentTime + 0.15);
             
