@@ -178,61 +178,74 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
+        // A bouncy, layered bubble pop sequence for Procrastinating
         function playCutePopSound() {
             initAudio();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
+            const now = audioCtx.currentTime;
             
-            // Soft rounded bubble synth pop sound
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(320, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.15);
-            
-            gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.15);
+            // Creates 4 quick, tiny sequential bubble textures
+            for (let i = 0; i < 4; i++) {
+                const timeOffset = now + (i * 0.04);
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                // Slighly randomized high frequencies for a lighter texture
+                osc.frequency.setValueAtTime(400 + (Math.random() * 120), timeOffset);
+                osc.frequency.exponentialRampToValueAtTime(150, timeOffset + 0.08);
+                
+                gain.gain.setValueAtTime(0.12, timeOffset);
+                gain.gain.exponentialRampToValueAtTime(0.001, timeOffset + 0.08);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start(timeOffset);
+                osc.stop(timeOffset + 0.08);
+            }
         }
 
+        // A sparkling magic chime cascade for Locked In
         function playCuteChimeSound() {
             initAudio();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            const filter = audioCtx.createBiquadFilter();
-            
-            // Warmer wooden marimba style drop chime sound
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(520, audioCtx.currentTime + 0.12);
-            
-            // Lowpass cuts out harsh frequencies
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
-            
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
-            
-            osc.connect(filter);
-            filter.connect(gain);
-            gain.connect(audioCtx.destination);
-            
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.12);
+            const now = audioCtx.currentTime;
+
+            // Creates 5 rapid rising chime notes
+            for (let i = 0; i < 5; i++) {
+                const timeOffset = now + (i * 0.03);
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+                
+                osc.type = 'triangle';
+                // Upward scale trajectory
+                osc.frequency.setValueAtTime(520 + (i * 90), timeOffset);
+                osc.frequency.linearRampToValueAtTime(700 + (i * 40), timeOffset + 0.1);
+                
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1500, timeOffset);
+                
+                gain.gain.setValueAtTime(0.1, timeOffset);
+                gain.gain.exponentialRampToValueAtTime(0.001, timeOffset + 0.1);
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start(timeOffset);
+                osc.stop(timeOffset + 0.1);
+            }
         }
 
-        // --- CLICK EVENT LISTENERS ---
+        // Attach logic back to your original click configurations
         document.getElementById('btn1').addEventListener('click', function() {
-            playCutePopSound();
             explodeConfetti(this, 50);
+            playCutePopSound();
         });
 
         document.getElementById('btn2').addEventListener('click', function() {
+            explodeConfetti(this, 50);
             playCuteChimeSound();
-            explodeConfetti(this, 80);
         });
     </script>
 </body>
