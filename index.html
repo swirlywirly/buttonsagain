@@ -26,11 +26,12 @@
             padding: 18px 36px;
             font-size: 20px;
             font-weight: bold;
-            color: white;
+            color: #191919; /* Updated text color */
+            background-color: #ffffff; /* Updated button color to solid white */
             border: none;
             border-radius: 12px;
             cursor: pointer;
-            transition: transform 0.1s, filter 0.2s;
+            transition: transform 0.1s, background-color 0.2s;
             position: relative;
         }
 
@@ -38,11 +39,10 @@
             transform: scale(0.95);
         }
 
-        /* Updated buttons with sleek green gradients */
-        #btn1 { background: linear-gradient(45deg, #2ed573, #7bed9f); color: #053314; }
-        #btn1:hover { filter: brightness(1.15); }
-        #btn2 { background: linear-gradient(45deg, #10ac84, #1dd1a1); }
-        #btn2:hover { filter: brightness(1.15); }
+        /* Subtle gray shift on hover for clear interactive feedback */
+        button:hover {
+            background-color: #e5e5e5;
+        }
 
         /* Confetti pieces shooting outward */
         .confetti-piece {
@@ -76,7 +76,6 @@
     </div>
 
     <script>
-        // Array updated specifically to alternating shades of bright/light green and rich dark green
         const greenColors = [
             '#2ed573', // Bright Lime Green
             '#7bed9f', // Soft Light Green
@@ -101,7 +100,6 @@
                 piece.style.width = `${width}px`;
                 piece.style.height = `${height}px`;
                 
-                // Picks random green colors from the updated palette
                 piece.style.backgroundColor = greenColors[Math.floor(Math.random() * greenColors.length)];
 
                 piece.style.left = `${centerX - width / 2}px`;
