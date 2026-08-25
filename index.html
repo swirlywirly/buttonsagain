@@ -65,10 +65,21 @@
     <script src="https://jsdelivr.net"></script>
     
     <script>
-        // Web Audio API helper to generate noise without external audio files
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Initialize audio context safely
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            // Resume if suspended (browser security policy)
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
 
         function playPopSound() {
+            initAudio();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'sine';
@@ -83,6 +94,7 @@
         }
 
         function playSynthSound() {
+            initAudio();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'triangle';
