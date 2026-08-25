@@ -26,20 +26,21 @@
             padding: 18px 36px;
             font-size: 20px;
             font-weight: bold;
-            color: #191919; /* Updated text color */
-            background-color: #ffffff; /* Updated button color to solid white */
+            color: #191919;
+            background-color: #ffffff;
             border: none;
             border-radius: 12px;
             cursor: pointer;
             transition: transform 0.1s, background-color 0.2s;
             position: relative;
+            /* Updated font family specifically for the button text */
+            font-family: "Times New Roman", Times, serif; 
         }
 
         button:active {
             transform: scale(0.95);
         }
 
-        /* Subtle gray shift on hover for clear interactive feedback */
         button:hover {
             background-color: #e5e5e5;
         }
@@ -71,8 +72,9 @@
 <body>
 
     <div class="container">
-        <button id="btn1">Pop Blast!</button>
-        <button id="btn2">Synth Burst!</button>
+        <!-- Updated button labels with custom strings -->
+        <button id="btn1">Procrastinating .ᐟ.ᐟ</button>
+        <button id="btn2">Locked In .ᐟ.ᐟ</button>
     </div>
 
     <script>
