@@ -24,7 +24,7 @@
 
         button {
             padding: 18px 40px;
-            font-size: 22px; /* Marginally scaled for better bubble balance */
+            font-size: 22px;
             font-weight: bold;
             color: #191919;
             background-color: #ffffff;
@@ -32,17 +32,15 @@
             position: relative;
             font-family: "Times New Roman", Times, serif; 
             
-            /* Bubble Border Transformation Styles */
-            border: 4px solid #ffffff; /* Creates thickness structure */
-            border-radius: 50px;       /* Pillow-soft fully rounded capsules */
+            border: 4px solid #ffffff;
+            border-radius: 50px;
             box-shadow: 
-                0 8px 0 #dcdcdc,       /* Thick chunky 3D baseline shoe */
-                0 15px 20px rgba(0,0,0,0.5); /* Heavy drop floating shadow */
+                0 8px 0 #dcdcdc,
+                0 15px 20px rgba(0,0,0,0.5);
             transition: transform 0.1s, background-color 0.1s, box-shadow 0.1s, border-color 0.1s;
             transform: translateY(0px);
         }
 
-        /* 3D mechanical press feedback when active */
         button:active {
             transform: translateY(6px) scale(0.98);
             box-sizing: border-box;
@@ -86,7 +84,8 @@
 <body>
 
     <div class="container">
-        <button id="btn1">Procrastinating .ᐟ.ᐟ</button>
+        <!-- Updated first button text with sleeping/procrastinating unicode icons -->
+        <button id="btn1">Procrastinating ᶻ 𝗓 𐰁</button>
         <button id="btn2">Locked In .ᐟ.ᐟ</button>
     </div>
 
@@ -100,7 +99,6 @@
             '#0f6b2d'  // Mid Dark Green
         ];
 
-        // Custom shape paths drawn via clip-path
         const shapes = [
             { type: 'ribbon', clip: 'none' }, 
             { type: 'star', clip: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)' },
@@ -118,21 +116,18 @@
                 const piece = document.createElement('div');
                 piece.className = 'confetti-piece';
 
-                // --- EXTENDED SIZE VARIATIONS ---
-                // Generates dynamic scale groups from small dust (10px) to giant chunks (42px)
                 const sizeMatrix = Math.random();
                 let baseDimension = 20; 
                 
                 if (sizeMatrix < 0.3) {
-                    baseDimension = Math.random() * 6 + 10;  // 30% chance for tiny pieces (10px - 16px)
+                    baseDimension = Math.random() * 6 + 10;  
                 } else if (sizeMatrix < 0.85) {
-                    baseDimension = Math.random() * 10 + 20; // 55% chance for regular pieces (20px - 30px)
+                    baseDimension = Math.random() * 10 + 20; 
                 } else {
-                    baseDimension = Math.random() * 12 + 32; // 15% chance for rare giant chunks (32px - 44px)
+                    baseDimension = Math.random() * 12 + 32; 
                 }
 
                 const width = baseDimension;
-                // Give ribbons an elongated dimension aspect ratio, keep icons uniform squares
                 const shapeProfile = shapes[Math.floor(Math.random() * shapes.length)];
                 const height = (shapeProfile.type === 'ribbon') ? baseDimension * (Math.random() * 0.6 + 1.2) : baseDimension;
 
@@ -154,19 +149,17 @@
 
                 const angleRad = (i * (360 / count) + (Math.random() * 15 - 7.5)) * (Math.PI / 180);
                 
-                // Scale momentum based on size matrix so massive chunks push out with structural weight
                 const speedModifier = baseDimension > 30 ? 1.3 : (baseDimension < 16 ? 0.8 : 1.0);
                 const blastDistance = (Math.random() * 260 + 140) * speedModifier; 
                 
                 const endX = Math.cos(angleRad) * blastDistance;
                 const endY = Math.sin(angleRad) * blastDistance; 
-                const endRotation = Math.random() * 900 - 450; // Increased rotation variation
+                const endRotation = Math.random() * 900 - 450; 
 
                 piece.style.setProperty('--x2', `${endX}px`);
                 piece.style.setProperty('--y2', `${endY}px`);
                 piece.style.setProperty('--r2', `${endRotation}deg`);
 
-                // Tiny specs move lightning fast, giant ribbons drift longer
                 const duration = (Math.random() * 0.5 + 0.6) * (baseDimension > 30 ? 1.4 : 1.0); 
                 piece.style.animationDuration = `${duration}s`;
 
@@ -226,7 +219,7 @@
         // --- CLICK LISTENERS ---
         document.getElementById('btn1').addEventListener('click', function() {
             playCutePopSound();
-            explodeConfetti(this, 95); // Slightly bumped counts to accommodate the small specs
+            explodeConfetti(this, 95); 
         });
 
         document.getElementById('btn2').addEventListener('click', function() {
