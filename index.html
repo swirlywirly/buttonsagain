@@ -1,1 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confetti Buttons</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            font-family: Arial, sans-serif;
+        }
 
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s, filter 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        #btn1 {
+            background-color: #ff4757;
+        }
+
+        #btn1:hover {
+            background-color: #ff6b81;
+        }
+
+        #btn2 {
+            background-color: #2ed573;
+        }
+
+        #btn2:hover {
+            background-color: #7bed9f;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Button 1 -->
+        <button id="btn1">Party Popper!</button>
+        <!-- Button 2 -->
+        <button id="btn2">Star Burst!</button>
+    </div>
+
+    <!-- Include Canvas Confetti Library -->
+    <script src="https://jsdelivr.net"></script>
+    
+    <script>
+        // First button event: Classic cannon blast
+        document.getElementById('btn1').addEventListener('click', () => {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        });
+
+        // Second button event: Star-shaped multi-directional burst
+        document.getElementById('btn2').addEventListener('click', () => {
+            confetti({
+                particleCount: 50,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 }
+            });
+            confetti({
+                particleCount: 50,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 }
+            });
+        });
+    </script>
+
+</body>
+</html>
