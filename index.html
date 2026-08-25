@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rainbow Confetti Buttons</title>
+    <title>Rainbow Confetti Explosion</title>
     <style>
         body {
             display: flex;
@@ -18,44 +18,51 @@
 
         .container {
             display: flex;
-            gap: 20px;
-            z-index: 100; /* Keeps buttons in front of the confetti */
+            gap: 40px; /* Increased gap to give explosions breathing room */
+            z-index: 100;
         }
 
         button {
-            padding: 15px 30px;
-            font-size: 18px;
+            padding: 18px 36px;
+            font-size: 20px;
             font-weight: bold;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: transform 0.1s;
-            position: relative; /* Anchor point for positioning calculations */
+            transition: transform 0.1s, filter 0.2s;
+            position: relative;
         }
 
         button:active {
             transform: scale(0.95);
         }
 
-        /* Rainbow styled buttons */
         #btn1 { background: linear-gradient(45deg, #ff4757, #ffa502); }
-        #btn1:hover { filter: brightness(1.1); }
+        #btn1:hover { filter: brightness(1.15); }
         #btn2 { background: linear-gradient(45deg, #2ed573, #1e90ff); }
-        #btn2:hover { filter: brightness(1.1); }
+        #btn2:hover { filter: brightness(1.15); }
 
-        /* The individual confetti items */
+        /* Confetti pieces shooting outward */
         .confetti-piece {
             position: fixed;
             pointer-events: none;
-            z-index: 50; /* Sits behind the container (100) but above the background */
+            z-index: 50; /* Sits completely behind the buttons */
             will-change: transform, opacity;
-            animation: fall linear forwards;
+            animation: explode linear forwards;
         }
 
-        @keyframes fall {
-            to {
-                transform: translate3d(var(--x2), var(--y2), 0) rotate3d(1, 1, 1, var(--r2));
+        @keyframes explode {
+            0% {
+                transform: translate3d(0, 0, 0) scale(0.3) rotate3d(1, 1, 1, 0deg);
+                opacity: 1;
+            }
+            70% {
+                opacity: 1; /* Stay fully visible during the peak blast */
+            }
+            100% {
+                /* Moves to the random destination angles calculated in JavaScript */
+                transform: translate3d(var(--x2), var(--y2), 0) scale(1) rotate3d(1, 1, 1, var(--r2));
                 opacity: 0;
             }
         }
@@ -71,53 +78,51 @@
     <script>
         const rainbowColors = ['#ff4757', '#ffa502', '#eccc68', '#2ed573', '#1e90ff', '#70a1ff', '#9b59b6'];
 
-        function spawnConfetti(count, buttonElement, baseAngle, spread) {
-            // Get the precise pixel boundaries and center point of the clicked button
+        function explodeConfetti(buttonElement, count) {
             const rect = buttonElement.getBoundingClientRect();
-            const startX = rect.left + rect.width / 2;
-            const startY = rect.top + rect.height / 2;
+            
+            // Find the perfect center point of the clicked button
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
 
             for (let i = 0; i < count; i++) {
                 const piece = document.createElement('div');
                 piece.className = 'confetti-piece';
 
-                // Size metrics (Large festival style ribbons)
-                const width = Math.random() * 12 + 15;
-                const height = Math.random() * 20 + 25;
+                // Large ribbon size variations
+                const width = Math.random() * 12 + 16;
+                const height = Math.random() * 20 + 26;
                 piece.style.width = `${width}px`;
                 piece.style.height = `${height}px`;
-                
-                // Color assignment
                 piece.style.backgroundColor = rainbowColors[Math.floor(Math.random() * rainbowColors.length)];
 
-                // Center the confetti origins right behind the middle of the button
-                piece.style.left = `${startX - width / 2}px`;
-                piece.style.top = `${startY - height / 2}px`;
+                // Center the piece initial position right behind the button's core
+                piece.style.left = `${centerX - width / 2}px`;
+                piece.style.top = `${centerY - height / 2}px`;
 
-                // Physics angles and distance calculations
-                const angleRad = (baseAngle + (Math.random() * spread - spread / 2)) * (Math.PI / 180);
-                const distance = Math.random() * 300 + 150; // Throw velocity distance
+                // Calculate a true 360-degree radial blast ring
+                const angleRad = (i * (360 / count) + (Math.random() * 15 - 7.5)) * (Math.PI / 180);
                 
-                // End trajectory positions
-                const endX = Math.cos(angleRad) * distance;
-                const endY = -Math.sin(angleRad) * distance + 400; // Gravity simulation pull downward
-                const endRotation = Math.random() * 720 + 360;
+                // Exploding force distance
+                const blastDistance = Math.random() * 250 + 150; 
+                
+                // Calculate absolute X and Y vector trajectories
+                const endX = Math.cos(angleRad) * blastDistance;
+                const endY = Math.sin(angleRad) * blastDistance; // Balanced Y for a true circular ring burst
+                const endRotation = Math.random() * 720 - 360;
 
-                // Pass custom CSS variables directly into the keyframe animation
+                // Send layout vectors to the keyframe animation
                 piece.style.setProperty('--x2', `${endX}px`);
                 piece.style.setProperty('--y2', `${endY}px`);
                 piece.style.setProperty('--r2', `${endRotation}deg`);
 
-                // Set random rotation starting angle
-                piece.style.transform = `rotate3d(1, 1, 1, ${Math.random() * 360}deg)`;
-
-                // Dynamic durations so they fall at natural, variable speeds
-                const duration = Math.random() * 1.2 + 1.2;
+                // Speed variation
+                const duration = Math.random() * 0.6 + 0.8; // Quick, energetic explosion
                 piece.style.animationDuration = `${duration}s`;
 
                 document.body.appendChild(piece);
 
-                // Auto-cleanup node memory after animation ends
+                // Clear memory
                 setTimeout(() => {
                     piece.remove();
                 }, duration * 1000);
@@ -136,14 +141,14 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.15);
+            osc.frequency.setValueAtTime(450, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.12);
             gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.15);
+            osc.stop(audioCtx.currentTime + 0.12);
         }
 
         function playSynthSound() {
@@ -151,27 +156,25 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'triangle';
-            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.2);
+            osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(650, audioCtx.currentTime + 0.18);
             gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.18);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.2);
+            osc.stop(audioCtx.currentTime + 0.18);
         }
 
-        // --- TRIGGER BUTTON ACTIONS ---
+        // --- CLICK LISTENERS ---
         document.getElementById('btn1').addEventListener('click', function() {
             playPopSound();
-            // Shoots 360 degrees outwards from behind this specific button
-            spawnConfetti(60, this, 90, 360);
+            explodeConfetti(this, 80); // Fires 80 pieces all around the button
         });
 
         document.getElementById('btn2').addEventListener('click', function() {
             playSynthSound();
-            // Shoots 360 degrees outwards from behind this specific button
-            spawnConfetti(60, this, 90, 360);
+            explodeConfetti(this, 80); // Fires 80 pieces all around the button
         });
     </script>
 
