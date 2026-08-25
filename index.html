@@ -19,7 +19,7 @@
         .container {
             display: flex;
             gap: 20px;
-            z-index: 10;
+            z-index: 100;
         }
 
         button {
@@ -43,14 +43,19 @@
         #btn2 { background: linear-gradient(45deg, #2ed573, #1e90ff); }
         #btn2:hover { filter: brightness(1.1); }
 
-        #confetti-canvas {
+        /* The individual confetti items */
+        .confetti-piece {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
             pointer-events: none;
-            z-index: 5;
+            will-change: transform, opacity; /* Forces Chrome to use smooth hardware acceleration */
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translate3d(var(--x2), var(--y2), 0) rotate3d(1, 1, 1, var(--r2));
+                opacity: 0;
+            }
         }
     </style>
 </head>
@@ -61,77 +66,56 @@
         <button id="btn2">Synth Burst!</button>
     </div>
 
-    <canvas id="confetti-canvas"></canvas>
-
     <script>
-        const canvas = document.getElementById('confetti-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        
-        // Vivid rainbow palette
         const rainbowColors = ['#ff4757', '#ffa502', '#eccc68', '#2ed573', '#1e90ff', '#70a1ff', '#9b59b6'];
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        class Particle {
-            constructor(x, y, angle, spread) {
-                this.x = x;
-                this.y = y;
-                const speed = Math.random() * 18 + 7; // Faster speed for larger pieces
-                const radAngle = (angle + (Math.random() * spread - spread / 2)) * (Math.PI / 180);
-                this.vx = Math.cos(radAngle) * speed;
-                this.vy = -Math.sin(radAngle) * speed;
-                this.color = rainbowColors[Math.floor(Math.random() * rainbowColors.length)];
-                
-                // Made confetti significantly larger (Width: 15-27px, Height: 25-45px)
-                this.width = Math.random() * 12 + 15;
-                this.height = Math.random() * 20 + 25;
-                
-                this.gravity = 0.35;
-                this.alpha = 1;
-                this.rotation = Math.random() * 360;
-                this.rotationSpeed = Math.random() * 8 - 4;
-            }
-            update() {
-                this.x += this.vx;
-                this.vy += this.gravity;
-                this.y += this.vy;
-                this.alpha -= 0.012; // Slower fade so they stay on screen longer
-                this.rotation += this.rotationSpeed;
-            }
-            draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.rotation * Math.PI / 180);
-                ctx.fillStyle = this.color;
-                ctx.globalAlpha = this.alpha;
-                // Drawing large rectangular ribbons
-                ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
-                ctx.restore();
-            }
-        }
-
-        function spawnConfetti(count, x, y, angle, spread) {
+        function spawnConfetti(count, startX, startY, baseAngle, spread) {
             for (let i = 0; i < count; i++) {
-                particles.push(new Particle(x, y, angle, spread));
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+
+                // Size metrics (Large festival style ribbons)
+                const width = Math.random() * 12 + 15;
+                const height = Math.random() * 20 + 25;
+                piece.style.width = `${width}px`;
+                piece.style.height = `${height}px`;
+                
+                // Color assignment
+                piece.style.backgroundColor = rainbowColors[Math.floor(Math.random() * rainbowColors.length)];
+
+                // Set starting position
+                piece.style.left = `${startX}px`;
+                piece.style.top = `${startY}px`;
+
+                // Physics angles and distance calculations
+                const angleRad = (baseAngle + (Math.random() * spread - spread / 2)) * (Math.PI / 180);
+                const distance = Math.random() * 400 + 200; // Throw velocity distance
+                
+                // End trajectory positions
+                const endX = Math.cos(angleRad) * distance;
+                const endY = -Math.sin(angleRad) * distance + 500; // Gravity simulation pull downward
+                const endRotation = Math.random() * 720 + 360;
+
+                // Pass custom CSS variables directly into the keyframe animation
+                piece.style.setProperty('--x2', `${endX}px`);
+                piece.style.setProperty('--y2', `${endY}px`);
+                piece.style.setProperty('--r2', `${endRotation}deg`);
+
+                // Set random rotation starting angle
+                piece.style.transform = `rotate3d(1, 1, 1, ${Math.random() * 360}deg)`;
+
+                // Dynamic durations so they fall at natural, variable speeds
+                const duration = Math.random() * 1.5 + 1.5;
+                piece.style.animationDuration = `${duration}s`;
+
+                document.body.appendChild(piece);
+
+                // Auto-cleanup node memory after the element completes its animation sequence
+                setTimeout(() => {
+                    piece.remove();
+                }, duration * 1000);
             }
         }
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles = particles.filter(p => p.alpha > 0);
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            requestAnimationFrame(animate);
-        }
-        animate();
 
         // --- AUDIO ENGINE ---
         let audioCtx = null;
@@ -170,16 +154,19 @@
             osc.stop(audioCtx.currentTime + 0.2);
         }
 
-        // --- BUTTON EVENTS ---
+        // --- TRIGGER BUTTON ACTIONS ---
         document.getElementById('btn1').addEventListener('click', () => {
             playPopSound();
-            spawnConfetti(120, window.innerWidth / 2, window.innerHeight * 0.7, 90, 75);
+            // Center bottom blast launching upward (90 degrees)
+            spawnConfetti(70, window.innerWidth / 2, window.innerHeight * 0.7, 90, 60);
         });
 
         document.getElementById('btn2').addEventListener('click', () => {
             playSynthSound();
-            spawnConfetti(60, 0, window.innerHeight * 0.8, 45, 45);
-            spawnConfetti(60, window.innerWidth, window.innerHeight * 0.8, 135, 45);
+            // Left corner shooting diagonally up-right
+            spawnConfetti(35, 20, window.innerHeight * 0.8, 45, 30);
+            // Right corner shooting diagonally up-left
+            spawnConfetti(35, window.innerWidth - 40, window.innerHeight * 0.8, 135, 30);
         });
     </script>
 
