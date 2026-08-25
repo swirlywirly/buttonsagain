@@ -11,7 +11,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #191919; /* Updated dark background */
+            background-color: #191919;
             font-family: Arial, sans-serif;
             overflow: hidden;
         }
@@ -19,7 +19,7 @@
         .container {
             display: flex;
             gap: 20px;
-            z-index: 100;
+            z-index: 100; /* Keeps buttons in front of the confetti */
         }
 
         button {
@@ -31,6 +31,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: transform 0.1s;
+            position: relative; /* Anchor point for positioning calculations */
         }
 
         button:active {
@@ -47,7 +48,8 @@
         .confetti-piece {
             position: fixed;
             pointer-events: none;
-            will-change: transform, opacity; /* Forces Chrome to use smooth hardware acceleration */
+            z-index: 50; /* Sits behind the container (100) but above the background */
+            will-change: transform, opacity;
             animation: fall linear forwards;
         }
 
@@ -69,7 +71,12 @@
     <script>
         const rainbowColors = ['#ff4757', '#ffa502', '#eccc68', '#2ed573', '#1e90ff', '#70a1ff', '#9b59b6'];
 
-        function spawnConfetti(count, startX, startY, baseAngle, spread) {
+        function spawnConfetti(count, buttonElement, baseAngle, spread) {
+            // Get the precise pixel boundaries and center point of the clicked button
+            const rect = buttonElement.getBoundingClientRect();
+            const startX = rect.left + rect.width / 2;
+            const startY = rect.top + rect.height / 2;
+
             for (let i = 0; i < count; i++) {
                 const piece = document.createElement('div');
                 piece.className = 'confetti-piece';
@@ -83,17 +90,17 @@
                 // Color assignment
                 piece.style.backgroundColor = rainbowColors[Math.floor(Math.random() * rainbowColors.length)];
 
-                // Set starting position
-                piece.style.left = `${startX}px`;
-                piece.style.top = `${startY}px`;
+                // Center the confetti origins right behind the middle of the button
+                piece.style.left = `${startX - width / 2}px`;
+                piece.style.top = `${startY - height / 2}px`;
 
                 // Physics angles and distance calculations
                 const angleRad = (baseAngle + (Math.random() * spread - spread / 2)) * (Math.PI / 180);
-                const distance = Math.random() * 400 + 200; // Throw velocity distance
+                const distance = Math.random() * 300 + 150; // Throw velocity distance
                 
                 // End trajectory positions
                 const endX = Math.cos(angleRad) * distance;
-                const endY = -Math.sin(angleRad) * distance + 500; // Gravity simulation pull downward
+                const endY = -Math.sin(angleRad) * distance + 400; // Gravity simulation pull downward
                 const endRotation = Math.random() * 720 + 360;
 
                 // Pass custom CSS variables directly into the keyframe animation
@@ -105,12 +112,12 @@
                 piece.style.transform = `rotate3d(1, 1, 1, ${Math.random() * 360}deg)`;
 
                 // Dynamic durations so they fall at natural, variable speeds
-                const duration = Math.random() * 1.5 + 1.5;
+                const duration = Math.random() * 1.2 + 1.2;
                 piece.style.animationDuration = `${duration}s`;
 
                 document.body.appendChild(piece);
 
-                // Auto-cleanup node memory after the element completes its animation sequence
+                // Auto-cleanup node memory after animation ends
                 setTimeout(() => {
                     piece.remove();
                 }, duration * 1000);
@@ -155,18 +162,16 @@
         }
 
         // --- TRIGGER BUTTON ACTIONS ---
-        document.getElementById('btn1').addEventListener('click', () => {
+        document.getElementById('btn1').addEventListener('click', function() {
             playPopSound();
-            // Center bottom blast launching upward (90 degrees)
-            spawnConfetti(70, window.innerWidth / 2, window.innerHeight * 0.7, 90, 60);
+            // Shoots 360 degrees outwards from behind this specific button
+            spawnConfetti(60, this, 90, 360);
         });
 
-        document.getElementById('btn2').addEventListener('click', () => {
+        document.getElementById('btn2').addEventListener('click', function() {
             playSynthSound();
-            // Left corner shooting diagonally up-right
-            spawnConfetti(35, 20, window.innerHeight * 0.8, 45, 30);
-            // Right corner shooting diagonally up-left
-            spawnConfetti(35, window.innerWidth - 40, window.innerHeight * 0.8, 135, 30);
+            // Shoots 360 degrees outwards from behind this specific button
+            spawnConfetti(60, this, 90, 360);
         });
     </script>
 
