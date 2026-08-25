@@ -84,7 +84,6 @@
 <body>
 
     <div class="container">
-        <!-- Updated first button text with sleeping/procrastinating unicode icons -->
         <button id="btn1">Procrastinating ᶻ 𝗓 𐰁</button>
         <button id="btn2">Locked In .ᐟ.ᐟ</button>
     </div>
@@ -171,59 +170,63 @@
             }
         }
 
-        // --- CUTE AUDIO ENGINE ---
+        // --- RETRO VIDEO GAME SPARKLE AUDIO ENGINE ---
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        function playCutePopSound() {
-            initAudio();
+        // Helper to generate a single glittering 8-bit chip note
+        function playSparkleNote(delay, pitch) {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.08);
+            // Triangle wave provides that soft, cute, retro Nintendo/Kirby synth sound
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(pitch, audioCtx.currentTime + delay);
             
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+            // Gentle frequency sweep upwards to make each individual note feel extra bouncy
+            osc.frequency.exponentialRampToValueAtTime(pitch * 1.2, audioCtx.currentTime + delay + 0.06);
+            
+            // Quick 8-bit style decay volume profile
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime + delay);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + 0.08);
             
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.08);
+            osc.start(audioCtx.currentTime + delay);
+            osc.stop(audioCtx.currentTime + delay + 0.08);
         }
 
-        function playCuteChimeSound() {
+        // Button 1: Soft magical, low-to-high video game item find chime
+        function playButton1Sparkle() {
             initAudio();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(1500, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(1300, audioCtx.currentTime + 0.15);
-            
-            gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.15);
+            playSparkleNote(0.00, 783.99);  // G5
+            playSparkleNote(0.03, 987.77);  // B5
+            playSparkleNote(0.06, 1174.66); // D6
+            playSparkleNote(0.09, 1567.98); // G6 (High twinkle)
+        }
+
+        // Button 2: Bright, crystalline cascading fairy-dust sparkle cluster
+        function playButton2Sparkle() {
+            initAudio();
+            playSparkleNote(0.00, 1046.50); // C6
+            playSparkleNote(0.02, 1318.51); // E6
+            playSparkleNote(0.04, 1567.98); // G6
+            playSparkleNote(0.06, 1975.53); // B6
+            playSparkleNote(0.08, 2093.00); // C7 (Ultra high crystal sparkle)
         }
 
         // --- CLICK LISTENERS ---
         document.getElementById('btn1').addEventListener('click', function() {
-            playCutePopSound();
+            playButton1Sparkle();
             explodeConfetti(this, 95); 
         });
 
         document.getElementById('btn2').addEventListener('click', function() {
-            playCuteChimeSound();
+            playButton2Sparkle();
             explodeConfetti(this, 95); 
         });
     </script>
