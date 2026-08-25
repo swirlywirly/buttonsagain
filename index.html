@@ -18,7 +18,7 @@
 
         .container {
             display: flex;
-            gap: 120px; /* Increased from 40px to 120px to space them out significantly */
+            gap: 120px;
             z-index: 100;
         }
 
@@ -127,51 +127,63 @@
             }
         }
 
-        // --- AUDIO ENGINE ---
+        // --- CUTE AUDIO ENGINE ---
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        function playPopSound() {
+        // High pitched "Plop / Bubble" sound for Procrastinating
+        function playCutePopSound() {
             initAudio();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
+            
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(450, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.12);
-            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+            // Start quite high pitched and slide up quickly for a cute bubble pop feel
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.08);
+            
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+            
             osc.connect(gain);
             gain.connect(audioCtx.destination);
+            
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.12);
+            osc.stop(audioCtx.currentTime + 0.08);
         }
 
-        function playSynthSound() {
+        // Sparkly video game "Chime / Ting" sound for Locked In
+        function playCuteChimeSound() {
             initAudio();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
+            
             osc.type = 'triangle';
-            osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(650, audioCtx.currentTime + 0.18);
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.18);
+            // Crystal clear ultra-high frequencies that drop slightly like a tiny bell ringing
+            osc.frequency.setValueAtTime(1500, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(1300, audioCtx.currentTime + 0.15);
+            
+            gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            
             osc.connect(gain);
             gain.connect(audioCtx.destination);
+            
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.18);
+            osc.stop(audioCtx.currentTime + 0.15);
         }
 
         // --- CLICK LISTENERS ---
         document.getElementById('btn1').addEventListener('click', function() {
-            playPopSound();
+            playCutePopSound();
             explodeConfetti(this, 80); 
         });
 
         document.getElementById('btn2').addEventListener('click', function() {
-            playSynthSound();
+            playCuteChimeSound();
             explodeConfetti(this, 80); 
         });
     </script>
