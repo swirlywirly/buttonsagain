@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rainbow Confetti Explosion</title>
+    <title>Green Confetti Explosion</title>
     <style>
         body {
             display: flex;
@@ -18,7 +18,7 @@
 
         .container {
             display: flex;
-            gap: 40px; /* Increased gap to give explosions breathing room */
+            gap: 40px;
             z-index: 100;
         }
 
@@ -38,16 +38,17 @@
             transform: scale(0.95);
         }
 
-        #btn1 { background: linear-gradient(45deg, #ff4757, #ffa502); }
+        /* Updated buttons with sleek green gradients */
+        #btn1 { background: linear-gradient(45deg, #2ed573, #7bed9f); color: #053314; }
         #btn1:hover { filter: brightness(1.15); }
-        #btn2 { background: linear-gradient(45deg, #2ed573, #1e90ff); }
+        #btn2 { background: linear-gradient(45deg, #10ac84, #1dd1a1); }
         #btn2:hover { filter: brightness(1.15); }
 
         /* Confetti pieces shooting outward */
         .confetti-piece {
             position: fixed;
             pointer-events: none;
-            z-index: 50; /* Sits completely behind the buttons */
+            z-index: 50;
             will-change: transform, opacity;
             animation: explode linear forwards;
         }
@@ -58,10 +59,9 @@
                 opacity: 1;
             }
             70% {
-                opacity: 1; /* Stay fully visible during the peak blast */
+                opacity: 1;
             }
             100% {
-                /* Moves to the random destination angles calculated in JavaScript */
                 transform: translate3d(var(--x2), var(--y2), 0) scale(1) rotate3d(1, 1, 1, var(--r2));
                 opacity: 0;
             }
@@ -76,12 +76,19 @@
     </div>
 
     <script>
-        const rainbowColors = ['#ff4757', '#ffa502', '#eccc68', '#2ed573', '#1e90ff', '#70a1ff', '#9b59b6'];
+        // Array updated specifically to alternating shades of bright/light green and rich dark green
+        const greenColors = [
+            '#2ed573', // Bright Lime Green
+            '#7bed9f', // Soft Light Green
+            '#1dd1a1', // Minty Light Green
+            '#10ac84', // Deep Emerald Green
+            '#05441a', // Forest Dark Green
+            '#0f6b2d'  // Mid Dark Green
+        ];
 
         function explodeConfetti(buttonElement, count) {
             const rect = buttonElement.getBoundingClientRect();
             
-            // Find the perfect center point of the clicked button
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
 
@@ -89,40 +96,33 @@
                 const piece = document.createElement('div');
                 piece.className = 'confetti-piece';
 
-                // Large ribbon size variations
                 const width = Math.random() * 12 + 16;
                 const height = Math.random() * 20 + 26;
                 piece.style.width = `${width}px`;
                 piece.style.height = `${height}px`;
-                piece.style.backgroundColor = rainbowColors[Math.floor(Math.random() * rainbowColors.length)];
+                
+                // Picks random green colors from the updated palette
+                piece.style.backgroundColor = greenColors[Math.floor(Math.random() * greenColors.length)];
 
-                // Center the piece initial position right behind the button's core
                 piece.style.left = `${centerX - width / 2}px`;
                 piece.style.top = `${centerY - height / 2}px`;
 
-                // Calculate a true 360-degree radial blast ring
                 const angleRad = (i * (360 / count) + (Math.random() * 15 - 7.5)) * (Math.PI / 180);
-                
-                // Exploding force distance
                 const blastDistance = Math.random() * 250 + 150; 
                 
-                // Calculate absolute X and Y vector trajectories
                 const endX = Math.cos(angleRad) * blastDistance;
-                const endY = Math.sin(angleRad) * blastDistance; // Balanced Y for a true circular ring burst
+                const endY = Math.sin(angleRad) * blastDistance; 
                 const endRotation = Math.random() * 720 - 360;
 
-                // Send layout vectors to the keyframe animation
                 piece.style.setProperty('--x2', `${endX}px`);
                 piece.style.setProperty('--y2', `${endY}px`);
                 piece.style.setProperty('--r2', `${endRotation}deg`);
 
-                // Speed variation
-                const duration = Math.random() * 0.6 + 0.8; // Quick, energetic explosion
+                const duration = Math.random() * 0.6 + 0.8; 
                 piece.style.animationDuration = `${duration}s`;
 
                 document.body.appendChild(piece);
 
-                // Clear memory
                 setTimeout(() => {
                     piece.remove();
                 }, duration * 1000);
@@ -169,12 +169,12 @@
         // --- CLICK LISTENERS ---
         document.getElementById('btn1').addEventListener('click', function() {
             playPopSound();
-            explodeConfetti(this, 80); // Fires 80 pieces all around the button
+            explodeConfetti(this, 80); 
         });
 
         document.getElementById('btn2').addEventListener('click', function() {
             playSynthSound();
-            explodeConfetti(this, 80); // Fires 80 pieces all around the button
+            explodeConfetti(this, 80); 
         });
     </script>
 
